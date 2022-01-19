@@ -25,6 +25,8 @@ export class DetalleComponent implements OnInit {
 
   baseUrl=environment.baseApiUrl;
 
+  baseUrlImagen:string=environment.baseApiUrl+'/api/uploads/img/';
+
   constructor(private clienteServico:ClienteService, private activatedRoute:ActivatedRoute,
   private detallseServicio:DetalleService,private authService:AuthService,
   private facturaService:DetalleFacturaService) {

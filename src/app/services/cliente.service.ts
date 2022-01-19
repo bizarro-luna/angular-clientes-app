@@ -3,7 +3,7 @@ import { formatDate,DatePipe } from '@angular/common';
 import { Cliente } from '../interfaces/Interfaces';
 import {Observable,throwError} from 'rxjs';
 import {map,catchError,tap } from 'rxjs/operators';
-import { HttpClient ,HttpEvent,HttpHeaders, HttpRequest } from '@angular/common/http';
+import { HttpClient ,HttpEvent,HttpHeaders, HttpParams, HttpRequest } from '@angular/common/http';
 
 import { Router} from '@angular/router';
 import { Region } from '../interfaces/region';
@@ -70,6 +70,21 @@ export class ClienteService {
 
     );
   }
+
+
+   /**
+   * 
+   * @param page 
+   * @param size 
+   * @returns 
+   */
+    listarPaginado(page:string,size:string):Observable<any>{
+      /// para hacer esto alumnos/pagina?page=0&size=6
+      const params = new HttpParams().set('page',page)
+                                     .set('size',size);
+      return this.http.get<any>(`${this._baseUrl}/api/clientes/page`,{params:  params});
+    }
+
 
   crear(cliente:Cliente):Observable<Cliente>{
     const url=`${this._baseUrl}/api/clientes`;

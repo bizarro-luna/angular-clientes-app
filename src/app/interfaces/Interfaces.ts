@@ -15,6 +15,7 @@ export interface Cliente{
   createAt?:string;
   email:string;
   foto?:string;
+  fotoHashCode?:number;
   region?:Region;
   facturas?:Facturas[];
 

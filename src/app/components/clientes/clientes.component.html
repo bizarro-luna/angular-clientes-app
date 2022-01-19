@@ -1,50 +1,52 @@
-<detalle-cliente *ngIf="clienteSeleccionado" [cliente]="clienteSeleccionado"  ></detalle-cliente>
+<detalle-cliente *ngIf="clienteSeleccionado" [cliente]="clienteSeleccionado"></detalle-cliente>
 <div class="card border-primary mb-3">
-  <div class="card-header">Clientes</div>
-  <div class="card-body text-primary">
-    <h5 class="card-title">Lista de Clientes</h5>
+    <div class="card-header">Clientes</div>
+    <div class="card-body text-primary">
+        <h5 class="card-title">Lista de Clientes</h5>
 
-    <div class="my-2 text-left">
-      <button *ngIf="authServicio.hasRole('ROLE_ADMIN')" type="button" class="btn btn-rounded btn-primary" [routerLink]="['/clientes/form']">Crear Cliente</button>
+        <div class="my-2 text-left">
+            <button *ngIf="authServicio.hasRole('ROLE_ADMIN')" type="button" class="btn btn-rounded btn-primary" [routerLink]="['/clientes/form']">Crear Cliente</button>
+        </div>
+
+        <div class="alert alert-info" *ngIf="clientes.length==0">
+            No se encuentran registros en la base de datos
+        </div>
+
+        <table class="table table-bordered table-striped" *ngIf="clientes.length>0">
+            <thead>
+                <tr>
+                    <!--*ngIf="authServicio.hasRole('ROLE_USER')"-->
+                    <th *ngIf="authServicio.hasRole('ROLE_USER')">#</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Fecha</th>
+                    <th *ngIf="authServicio.hasRole('ROLE_ADMIN')">Crear Factura</th>
+                    <th *ngIf="authServicio.hasRole('ROLE_ADMIN')">Editar</th>
+                    <th *ngIf="authServicio.hasRole('ROLE_ADMIN')">Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let c of clientes">
+                    <!--*ngIf="authServicio.hasRole('ROLE_USER')"  src="http://localhost:7070/api/uploads/img/{{c.foto}}" src="http://localhost:7070/images/285645_user_icon.png"-->
+                    <td *ngIf="authServicio.hasRole('ROLE_USER')"> <img (click)="abrirModal(c)" *ngIf="c?.fotoHashCode" [src]="baseUrlImagen+c.idCliente+'?fotoHashCode='+c.fotoHashCode" alt="{{c.foto}}" class="img-thumbnail rounded" style="width:64px; cursor:pointer">
+                        <!--<button type="button" name="detalle"  class="btn btn-success"> {{c.idCliente}}</button>-->
+                        <img (click)="abrirModal(c)" *ngIf="!c?.fotoHashCode" src="/assets/img/user_icon.png" alt="Sin foto" class="img-thumbnail rounded" style="width:64px; cursor:pointer">
+                    </td>
+                    <td>{{c.nombre | uppercase}}</td>
+                    <td>{{c.apellido | uppercase}}</td>
+                    <td>{{c.email}}</td>
+                    <td>{{c.createAt | date:'EEEE dd, MMMM yyyy' }}</td>
+                    <td *ngIf="authServicio.hasRole('ROLE_ADMIN')"><button [routerLink]="['/facturas/form',c.idCliente]" class="btn btn-success btn-sm" type="button" name="button">Crear Factura</button></td>
+                    <td *ngIf="authServicio.hasRole('ROLE_ADMIN')"><button type="button" name="editar" [routerLink]="['/clientes/form',c.idCliente]" class="btn btn-primary">Editar</button></td>
+                    <td *ngIf="authServicio.hasRole('ROLE_ADMIN')"><button type="button" name="eliminar" (click)="eliminar(c)" class="btn btn-danger">Eliminar</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <!--<app-paginador-nav *ngIf="paginador" [paginador]="paginador"></app-paginador-nav>-->
+
+        <!--Tabla con paginacion de angular material-->
+        <mat-paginator [length]="totalRegistros" [pageSize]="totalPorPagina" [pageIndex]="paginaActual" [pageSizeOptions]="pageSizeOptions" aria-label="Select page" (page)="paginar($event)" showFirstLastButtons class="float-left mx-2">
+        </mat-paginator>
     </div>
-
-    <div class="alert alert-info" *ngIf="clientes.length==0">
-        No se encuentran registros en la base de datos
-    </div>
-
-    <table class="table table-bordered table-striped" *ngIf="clientes.length>0" >
-      <thead>
-        <tr>
-          <!--*ngIf="authServicio.hasRole('ROLE_USER')"-->
-          <th  *ngIf="authServicio.hasRole('ROLE_USER')" >#</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Email</th>
-          <th>Fecha</th>
-          <th *ngIf="authServicio.hasRole('ROLE_ADMIN')">Crear Factura</th>
-          <th *ngIf="authServicio.hasRole('ROLE_ADMIN')">Editar</th>
-          <th *ngIf="authServicio.hasRole('ROLE_ADMIN')">Eliminar</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of clientes">
-           <!--*ngIf="authServicio.hasRole('ROLE_USER')"  src="http://localhost:7070/api/uploads/img/{{c.foto}}" src="http://localhost:7070/images/285645_user_icon.png"-->
-          <td *ngIf="authServicio.hasRole('ROLE_USER')" >  <img (click)="abrirModal(c)" *ngIf="c?.foto" src="{{baseUrl}}/api/uploads/img/{{c.foto}}" alt="{{c.foto}}" class="img-thumbnail rounded"
-            style="width:64px; cursor:pointer">
-            <!--<button type="button" name="detalle"  class="btn btn-success"> {{c.idCliente}}</button>-->
-            <img (click)="abrirModal(c)"  *ngIf="!c?.foto" src="{{baseUrl}}/images/285645_user_icon.png" alt="Sin foto" class="img-thumbnail rounded"
-             style="width:64px; cursor:pointer">
-          </td>
-          <td >{{c.nombre}}</td>
-          <td >{{c.apellido | uppercase}}</td>
-          <td >{{c.email}}</td>
-          <td >{{c.createAt | date:'EEEE dd, MMMM yyyy' }}</td>
-          <td *ngIf="authServicio.hasRole('ROLE_ADMIN')"><button [routerLink]="['/facturas/form',c.idCliente]" class="btn btn-success btn-sm" type="button" name="button">Crear Factura</button></td>
-          <td *ngIf="authServicio.hasRole('ROLE_ADMIN')"><button type="button" name="editar" [routerLink]="['/clientes/form',c.idCliente]" class="btn btn-primary" >Editar</button></td>
-          <td *ngIf="authServicio.hasRole('ROLE_ADMIN')"><button type="button" name="eliminar" (click)="eliminar(c)" class="btn btn-danger" >Eliminar</button></td>
-        </tr>
-      </tbody>
-    </table>
-    <app-paginador-nav *ngIf="paginador" [paginador]="paginador" ></app-paginador-nav>
-  </div>
 </div>

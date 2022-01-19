@@ -1,4 +1,4 @@
-import { OnInit } from '@angular/core';
+import { OnInit, ViewChild } from '@angular/core';
 import { Component } from '@angular/core';
 import { Cliente } from 'src/app/interfaces/Interfaces';
 import { ClienteService } from 'src/app/services/cliente.service';
@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DetalleService } from 'src/app/services/detalle.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { environment } from 'src/environments/environment';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 @Component({
   selector: 'app-clientes',
   templateUrl: './clientes.component.html',
@@ -26,11 +27,24 @@ export class ClientesComponent implements OnInit  {
 
   authServicio:AuthService=this.authService;
 
-   baseUrl=environment.baseApiUrl;
+   baseUrl:string=environment.baseApiUrl;
+
+   baseUrlImagen:string=environment.baseApiUrl+'/api/uploads/img/';
+
+   /**
+   * Variables del paginator
+   */
+  totalRegistros:number=0;
+  paginaActual:number=0;
+  totalPorPagina:number=2;
+  pageSizeOptions:number[]=[2,4,8,12,16,20,100];
+
+  @ViewChild(MatPaginator)  paginator!:MatPaginator;
+  progressBarPaginador=false;
 
 
   ngOnInit(): void {
-    this.activatedRoute.paramMap.subscribe(params =>{
+    /*this.activatedRoute.paramMap.subscribe(params =>{
       let page:number = +params.get('page')!;
 
       if(!page){
@@ -52,18 +66,27 @@ export class ClientesComponent implements OnInit  {
         }
       );
 
-    });
+    });*/
+    this.initPaginador();
 
     this.detallseServicio.notificarUpload.subscribe(cliente =>{
        this.clientes=  this.clientes.map(clienteOriginal => {
-        if(cliente.idCliente==clienteOriginal.idCliente){
-          clienteOriginal.foto=cliente.foto;
+        if(cliente.idCliente===clienteOriginal.idCliente){
+          clienteOriginal.fotoHashCode=cliente.fotoHashCode;
         }
         return clienteOriginal;
       });
-
+      //this.initPaginador();
     });
 
+  }
+
+  paginar(event:PageEvent):void{
+    this.progressBarPaginador=true;
+    this.paginaActual=event.pageIndex;
+    this.totalPorPagina=event.pageSize;
+    this.initPaginador();
+    this.progressBarPaginador=false;
   }
 
 
@@ -106,6 +129,24 @@ export class ClientesComponent implements OnInit  {
     this.detallseServicio.abrirModal();
 
   }
+
+   /**
+     * Metodo para el paginator
+     */
+    initPaginador(){
+      this.servicioCliente.listarPaginado(this.paginaActual.toString(),this.totalPorPagina.toString()).subscribe(p=>{
+  
+        this.clientes=p.content as Cliente[];
+        this.totalRegistros=p.totalElements as number;
+        this.paginator._intl.itemsPerPageLabel="Registros por página";
+        this.paginator._intl.lastPageLabel='Ultima página';
+        this.paginator._intl.nextPageLabel='Siguiente página';
+        this.paginator._intl.previousPageLabel='Anterior página';
+        this.paginator._intl.firstPageLabel='Primera página';
+        
+  
+      });
+    }
 
 
 

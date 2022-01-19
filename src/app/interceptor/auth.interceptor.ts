@@ -38,13 +38,22 @@ export class AuthInterceptor implements HttpInterceptor {
 
        }
 
-       //Cuando no esta autorizado
+       //Acceso denegado
        if(e.status==403){
-         Swal.fire(`Acceso denegado`,`Hola ${this.authService.usuario.username} no tienes acceso a este recurso camara perro`,
+         Swal.fire(`Acceso denegado`,`Hola ${this.authService.usuario.username} no tienes acceso a este recurso`,
          'warning');
          this.router.navigate(['/clintes']);
 
        }
+
+
+       //Cuando regresa un error 500
+       if(e.status==500){
+        Swal.fire(`Error`,`Hubo un error interno contacte a soporte`,
+        'error');
+        this.router.navigate(['/clintes']);
+
+      }
 
        return throwError(e);
      })
