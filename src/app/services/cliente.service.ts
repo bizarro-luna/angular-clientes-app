@@ -31,7 +31,10 @@ export class ClienteService {
   }*/
 
 
-
+  /**
+   * Se obtienen las regiones
+   * @returns 
+   */
   getRegiones():Observable<Region[]>{
     return this.http.get<Region[]>(this._baseUrl+'/api/clientes/regiones');
   }
